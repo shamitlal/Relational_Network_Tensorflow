@@ -4,8 +4,8 @@ import numpy as np
 import random
 import cPickle as pickle
 
-train_size = 10
-test_size = 10
+train_size = 8
+test_size = 8
 img_size = 75
 size = 5
 question_size = 11 ##6 for one-hot vector of color, 2 for question type, 3 for question subtype

@@ -9,18 +9,18 @@ from model import pix2pix
 import tensorflow as tf
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('--batch_size', dest='batch_size', type=int, default=64, help='# images in batch')
+parser.add_argument('--batch_size', dest='batch_size', type=int, default=4, help='# images in batch')##
 parser.add_argument('--beta1', dest='beta1', type=float, default=0.5, help='momentum term of adam')
 parser.add_argument('--checkpoint_dir', dest='checkpoint_dir', default='./checkpoint', help='models are saved here')
 parser.add_argument('--continue_train', dest='continue_train', type=bool, default=False, help='if continue training, load the latest model: 1: true, 0: false')
 parser.add_argument('--dataset_name', dest='dataset_name', default='bw2rgb', help='name of the dataset')
-parser.add_argument('--epoch', dest='epoch', type=int, default=20, help='# of epoch')
+parser.add_argument('--epoch', dest='epoch', type=int, default=20, help='# of epoch')  ##
 parser.add_argument('--fine_size', dest='fine_size', type=int, default=256, help='then crop to this size')
 parser.add_argument('--flip', dest='flip', type=bool, default=True, help='if flip the images for data argumentation')
 parser.add_argument('--input_nc', dest='input_nc', type=int, default=3, help='# of input image channels')
 parser.add_argument('--L1_lambda', dest='L1_lambda', type=float, default=100.0, help='weight on L1 term in objective')
 parser.add_argument('--load_size', dest='load_size', type=int, default=75, help='scale images to this size')
-parser.add_argument('--lr', dest='lr', type=float, default=0.0001, help='initial learning rate for adam')
+parser.add_argument('--lr', dest='lr', type=float, default=0.0001, help='initial learning rate for adam')  ##
 parser.add_argument('--ndf', dest='ndf', type=int, default=64, help='# of discri filters in first conv layer')
 parser.add_argument('--ngf', dest='ngf', type=int, default=64, help='# of gen filters in first conv layer')
 parser.add_argument('--niter', dest='niter', type=int, default=200, help='# of iter at starting learning rate')
@@ -48,8 +48,7 @@ def main(_):
 
     with tf.Session() as sess:
         model = relationalNetwork(sess, image_size=args.load_size, batch_size=args.batch_size,
-                        output_size=args.fine_size, dataset_name=args.dataset_name,
-                        checkpoint_dir=args.checkpoint_dir, sample_dir=args.sample_dir)
+                        dataset_name=args.dataset_name, checkpoint_dir=args.checkpoint_dir)
 
         if args.phase == 'train':
             model.train(args)
