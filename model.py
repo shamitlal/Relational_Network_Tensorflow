@@ -51,6 +51,8 @@ class pix2pix(object):
         self.input_label = tf.placeholder(tf.float32,
                                         [self.batch_size],
                                         name="labels")
+
+        self.keep_prob = tf.placeholder(tf.float32)   #set it to 0.5
         # print self.real_A.get_shape(), self.real_B.get_shape()
 
         self.output_label = self.forward(self.input_img, self.input_qst)
@@ -125,39 +127,29 @@ class pix2pix(object):
             for idx in xrange(0, batch_idxs):
 
                 img, qst, ans = tensor_data(rel, idx, self.batch_size)
-                batch_files = data[idx*self.batch_size:(idx+1)*self.batch_size]
-                batch = [load_data(batch_file) for batch_file in batch_files]
-                if (self.is_grayscale):
-                    batch_images = np.array(batch).astype(np.float32)
-                else:
-                    batch_images = np.array(batch).astype(np.float32)
-
+               
                 # Update D network
-                print "Batch images shape", batch_images.shape
-                _, summary_str = self.sess.run([d_optim, self.d_sum],
-                                               feed_dict={ self.real_data: batch_images })
+                print "Batch images shape", img.shape
+                print "Batch question shape", qst.shape
+                print "Batch answer shape", ans.shape
+
+                #update the relational network
+                _, summary_str = self.sess.run([optim, self.sum], feed_dict={ self.input_img: img, self.input_qst: qst, 
+                                                                self.input_label, ans, self.keep_prob: 0.5 })
                 self.writer.add_summary(summary_str, counter)
 
-                # Update G network
-                _, summary_str = self.sess.run([g_optim, self.g_sum],
-                                               feed_dict={ self.real_data: batch_images })
-                self.writer.add_summary(summary_str, counter)
+                
 
-                # Run g_optim twice to make sure that d_loss does not go to zero (different from paper)
-                _, summary_str = self.sess.run([g_optim, self.g_sum],
-                                               feed_dict={ self.real_data: batch_images })
-                self.writer.add_summary(summary_str, counter)
+                train_loss = self.loss.eval({ self.input_img: img, self.input_qst: qst, 
+                                                self.input_label, ans, self.keep_prob: 0.5 })
 
-                errD_fake = self.d_loss_fake.eval({self.real_data: batch_images})
-                errD_real = self.d_loss_real.eval({self.real_data: batch_images})
-                errG = self.g_loss.eval({self.real_data: batch_images})
-                errG_dis = self.g_loss_a.eval({self.real_data: batch_images})
-                errG_L1 = self.g_loss_b.eval({self.real_data: batch_images})
-
+                train_accuracy = self.accuracy.eval({ self.input_img: img, self.input_qst: qst, 
+                                                self.input_label, ans, self.keep_prob: 0.5 })
+                
                 counter += 1
-                print("Epoch: [%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f, g_loss_dis: %8f, g_loss_L1: %8f" \
+                print("Epoch: [%2d] [%4d/%4d] time: %4.4f, loss: %.8f, accuracy: %.8f" \
                     % (epoch, idx, batch_idxs,
-                        time.time() - start_time, errD_fake+errD_real, errG, errG_dis, errG_L1))
+                        time.time() - start_time, train_loss, train_accuracy))
 
                 if np.mod(counter, 3) == 1:
                     self.sample_model(args.sample_dir, epoch, idx)
@@ -199,8 +191,7 @@ class pix2pix(object):
 
         f1 = lrelu(linear(x_g, self.g_fc, "f1_fc"))
         f2 = lrelu(linear(f1, self.g_fc, "f2_fc"))
-        keep_prob = tf.placeholder(tf.float32)   #set it to 0.5
-        f2_drop = tf.nn.dropout(f2, keep_prob)
+        f2_drop = tf.nn.dropout(f2, self.keep_prob)
         f3 = linear(f2_drop, 10, "f3_fc"))
         return f3
 
@@ -236,8 +227,7 @@ class pix2pix(object):
 
         f1 = lrelu(linear(x_g, self.g_fc, "f1_fc"))
         f2 = lrelu(linear(f1, self.g_fc, "f2_fc"))
-        keep_prob = tf.placeholder(tf.float32)   #set it to 0.5
-        f2_drop = tf.nn.dropout(f2, keep_prob)
+        f2_drop = tf.nn.dropout(f2, self.keep_prob)
         f3 = linear(f2_drop, 10, "f3_fc"))
         return f3
 
