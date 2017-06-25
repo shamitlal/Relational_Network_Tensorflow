@@ -85,7 +85,7 @@ class relationalNetwork(object):
         else:
             print(" [!] Load failed...")
 
-        rel, norel = load_data("train")
+        rel, rel_test, norel, norel_test = load_data()
         # batch_idxs = (len(rel)+len(norel))// self.batch_size
         batch_idxs = (len(rel)+len(norel))// self.batch_size  # training only for relational dataset
         print "len of rel 1=",batch_idxs
@@ -135,8 +135,36 @@ class relationalNetwork(object):
                 if np.mod(counter, 50) == 2:
                     self.save(args.checkpoint_dir, counter)
 
-            # rel_test, norel_test = load_data("test")
-            # rel_norel_test=rel_test+norel_test
+            '''
+            Test set
+            '''
+            rel_norel_test=rel_test+norel_test
+            rel_norel_tuple_test = cvt_data_axis(rel_norel_test) ####
+            for idx in xrange(0, batch_idxs):
+
+                print "len of test set",len(rel_norel_test)
+                img, qst, ans = tensor_data(rel_norel_tuple_test, idx, self.batch_size) ####
+
+                print "Batch images shape", img.shape
+                print "Batch question shape", qst.shape
+                print "Batch answer shape", ans.shape
+
+                #update the relational network
+                _ = self.sess.run(optim, feed_dict={ self.input_img: img, self.input_qst: qst, 
+                                                                self.input_label: ans, self.keep_prob: 0.5 })
+
+                
+
+                test_loss = self.loss.eval({ self.input_img: img, self.input_qst: qst, 
+                                                self.input_label: ans, self.keep_prob: 0.5 })
+
+                test_accuracy = self.accuracy.eval({ self.input_img: img, self.input_qst: qst, 
+                                                self.input_label: ans, self.keep_prob: 0.5 })
+                
+                print("Epoch: [%2d] [%4d/%4d] time: %4.4f, loss: %.8f, accuracy: %.8f" \
+                    % (epoch, idx, batch_idxs,
+                        time.time() - start_time, test_loss, test_accuracy))
+
 
     def cvt_coord(self, i):
         return [(i/5-2)/2., (i%5-2)/2.]

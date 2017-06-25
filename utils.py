@@ -10,7 +10,7 @@ import cv2
 import random
 import cPickle as pickle
 
-def load_data(type):
+def load_data():
     print('loading data...')
     dirs = './data'
     filename = os.path.join(dirs,'sort-of-clevr.pickle')
@@ -34,13 +34,9 @@ def load_data(type):
         for qst,ans in zip(relations[0], relations[1]):
             rel_test.append((img,qst,ans))
         for qst,ans in zip(norelations[0], norelations[1]):
-            norel_test.append((img,qst,ans))
+            norel_test.append((img,qst,ans))    
     
-    if type=="train":
-        return (rel_train, norel_train)
-    else:
-        return (rel_test, norel_test)
-    # return (rel_train, rel_test, norel_train, norel_test)
+    return (rel_train, rel_test, norel_train, norel_test)
 
 def cvt_data_axis(data):
     img = [e[0] for e in data]
