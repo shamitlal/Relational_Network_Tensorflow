@@ -57,3 +57,35 @@ def tensor_data(data, i, bs):
 
 
 
+def train():
+    """Train Relational network"""
+
+    
+    rel, norel = load_data("train")
+    # batch_idxs = (len(rel)+len(norel))// self.batch_size
+    batch_idxs = (len(rel))// 4  # training only for relational dataset
+    print "len of rel 1=",len(rel)
+    for epoch in xrange(2):
+
+        
+        print "batch size=",batch_idxs
+        np.random.shuffle(rel)
+        np.random.shuffle(norel)
+
+        rel_norel=rel+norel  ####
+        random.shuffle(rel_norel)####
+
+        print "len of data=",len(rel_norel)
+        rel_norel_tuple = cvt_data_axis(rel_norel) ####
+        # norel_tuple = cvt_data_axis(norel) ####
+        print "len of rel 3=",len(rel_norel)
+        for idx in xrange(0, 3):
+            print "len of rel 4=",len(rel_norel)
+            img, qst, ans = tensor_data(rel_norel_tuple, idx, 4) ####
+            print "len of rel 5=",len(rel_norel)
+
+            print "Batch images shape", img.shape
+            print "Batch question shape", qst.shape
+            print "Batch answer shape", ans.shape
+
+train()

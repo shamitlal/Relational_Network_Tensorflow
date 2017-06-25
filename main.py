@@ -5,16 +5,16 @@ import numpy as np
 from glob import glob
 from utils import load_data
 
-from model import pix2pix
+from model import relationalNetwork
 import tensorflow as tf
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('--batch_size', dest='batch_size', type=int, default=4, help='# images in batch')##
+parser.add_argument('--batch_size', dest='batch_size', type=int, default=8, help='# images in batch')##
 parser.add_argument('--beta1', dest='beta1', type=float, default=0.5, help='momentum term of adam')
 parser.add_argument('--checkpoint_dir', dest='checkpoint_dir', default='./checkpoint', help='models are saved here')
 parser.add_argument('--continue_train', dest='continue_train', type=bool, default=False, help='if continue training, load the latest model: 1: true, 0: false')
 parser.add_argument('--dataset_name', dest='dataset_name', default='bw2rgb', help='name of the dataset')
-parser.add_argument('--epoch', dest='epoch', type=int, default=20, help='# of epoch')  ##
+parser.add_argument('--epoch', dest='epoch', type=int, default=200, help='# of epoch')  ##
 parser.add_argument('--fine_size', dest='fine_size', type=int, default=256, help='then crop to this size')
 parser.add_argument('--flip', dest='flip', type=bool, default=True, help='if flip the images for data argumentation')
 parser.add_argument('--input_nc', dest='input_nc', type=int, default=3, help='# of input image channels')
